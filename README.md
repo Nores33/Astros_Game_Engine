@@ -17,12 +17,12 @@
    cmake --build .
    ```
 3. Run:
-   a. In linux:
+   - In linux:
    ```
    ./Astros_Game_Engine
    ```
-   b. In Windows:
+   - In Windows:
    ```
-   cd build
+   cd Debug
    Astros_Game_Engine.exe
    ```
