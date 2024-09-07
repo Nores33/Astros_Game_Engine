@@ -22,3 +22,12 @@ else()
         ${CMAKE_SOURCE_DIR}/lib/glfw3.lib
     )
 endif()
+
+add_custom_command(TARGET Astros_Game_Engine POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_SOURCE_DIR}/shaders/vertex_shader.vs"
+        $<TARGET_FILE_DIR:Astros_Game_Engine>/vertex_shader.vs
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_SOURCE_DIR}/shaders/fragment_shader.fs"
+        $<TARGET_FILE_DIR:Astros_Game_Engine>/fragment_shader.fs
+)
