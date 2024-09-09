@@ -3,6 +3,7 @@
 
 #include "graphics/Renderer.hpp"
 #include <GLFW/glfw3.h>
+#include <tiny_gltf.h>
 
 class OpenGLRenderer : public Renderer {
 public:

@@ -1,6 +1,8 @@
 #include "graphics/OpenGL/OpenGLRenderer.hpp"
 #include <iostream>
 
+#define BUFFER_OFFSET(i) ((char *)NULL + (i))
+
 void OpenGLRenderer::initialize() {
     if (!glfwInit()) {
         std::cerr << "Failed to initialize GLFW" << std::endl;

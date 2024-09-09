@@ -1,33 +1,55 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.17)
+project(Astros_Game_Engine VERSION 1.0 LANGUAGES CXX C)
 
-project(Astros_Game_Engine VERSION 1.0)
+# Variables
+set(VENDOR_DIR "${CMAKE_SOURCE_DIR}/vendor")
+set(SHADER_DIR "${CMAKE_SOURCE_DIR}/shaders")
+set(MODELS_DIR "${CMAKE_SOURCE_DIR}/models")
+set(SRC_DIR "${CMAKE_SOURCE_DIR}/src")
+set(INCLUDE_DIR "${CMAKE_SOURCE_DIR}/include")
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+# OpenGL Flags
+set(OpenGL_GL_PREFERENCE GLVND)
 
-include_directories(${CMAKE_SOURCE_DIR}/include)
+# GLFW and GLM - Installed via vcpkg
+set(CMAKE_TOOLCHAIN_FILE "C:/vcpkg/scripts/buildsystems/vcpkg.cmake")
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "C:/vcpkg/installed/x64-windows")
+find_package(glfw3 CONFIG REQUIRED)
+find_package(glm CONFIG REQUIRED)
 
-file(GLOB_RECURSE SOURCES "src/*.cpp")
+# Glad
+add_library(glad STATIC ${VENDOR_DIR}/glad/src/glad.c)
+target_include_directories(glad PRIVATE ${VENDOR_DIR}/glad/include)
 
-set(GLAD_SOURCES "${CMAKE_SOURCE_DIR}/src/glad.c")
+# Project
+file(GLOB_RECURSE SOURCES "${SRC_DIR}/*.cpp")
+add_executable(${PROJECT_NAME} ${SOURCES})
 
-add_executable(Astros_Game_Engine ${SOURCES} ${GLAD_SOURCES})
-
-if(UNIX)
-    find_package(glfw3 REQUIRED)
-    include_directories(/usr/include/glm)
-    target_link_libraries(Astros_Game_Engine PRIVATE glfw)
-else()
-    target_link_libraries(Astros_Game_Engine PRIVATE
-        ${CMAKE_SOURCE_DIR}/lib/glfw3.lib
-    )
-endif()
-
-add_custom_command(TARGET Astros_Game_Engine POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${CMAKE_SOURCE_DIR}/shaders/vertex_shader.vs"
-        $<TARGET_FILE_DIR:Astros_Game_Engine>/vertex_shader.vs
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${CMAKE_SOURCE_DIR}/shaders/fragment_shader.fs"
-        $<TARGET_FILE_DIR:Astros_Game_Engine>/fragment_shader.fs
+target_include_directories(${PROJECT_NAME}
+  PRIVATE
+    ${VENDOR_DIR}/glad/include
+    ${VENDOR_DIR}/tinyGLTF
+    ${INCLUDE_DIR}
 )
+
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
+    glfw
+    glad
+    glm
+    ${CMAKE_DL_LIBS} # Needed for glad
+)
+
+set_target_properties(${PROJECT_NAME}
+  PROPERTIES
+    CXX_STANDARD 20
+    CXX_STANDARD_REQUIRED ON
+)
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${SHADER_DIR} $<TARGET_FILE_DIR:${PROJECT_NAME}>/shaders)
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${MODELS_DIR} $<TARGET_FILE_DIR:${PROJECT_NAME}>/models)
